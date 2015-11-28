@@ -37,6 +37,10 @@ module Shoppe
 
       private
 
+      def build_generate_request
+        
+      end
+
       def ensure_callback_params!
         params.require(:custom)
         params.require(:id)

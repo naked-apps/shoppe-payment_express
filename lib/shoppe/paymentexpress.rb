@@ -12,13 +12,17 @@ module Shoppe
 
       attr_accessor :configuration
 
-      def account_name
-        Shoppe.settings.paymentexpress_account_name
+      def pxpay_user_id
+        Shoppe.settings.paymentexpress_pxpay_user_id
+      end
+
+      def pxpay_key
+        Shoppe.settings.paymentexpress_pxpay_key
       end
 
       def setup
         # Set the configuration which we would like
-        Shoppe.add_settings_group :paymentexpress, [:paymentexpress_account_name]
+        Shoppe.add_settings_group :paymentexpress, [:paymentexpress_user_id, :paymentexpress_pxpay_key]
       end
 
       def configure
