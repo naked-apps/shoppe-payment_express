@@ -14,4 +14,5 @@ Gem::Specification.new do |s|
   s.files = Dir["{lib}/**/*", "MIT-LICENSE", "README.md"]
 
   s.add_dependency "shoppe", "~> 1.0.3"
+  s.add_dependency "nokogiri", "~> 1.6.6"
 end
