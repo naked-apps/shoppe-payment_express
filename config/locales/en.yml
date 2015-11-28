@@ -1,0 +1,7 @@
+en:
+  shoppe:
+    settings:
+      labels:
+        paymentexpress_account_name: Account Name
+      help:
+        paymentexpress_account_name: This is the last path component in your PaymentExpress payment URL.  E.g. mybusiness for http://www.paymentexpress.co.nz/pay/mybusiness
