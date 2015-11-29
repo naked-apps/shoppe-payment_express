@@ -91,8 +91,8 @@ module Shoppe
             xml.TxnData1 params[:txn_data_1]
             xml.TxnData2 params[:txn_data_2]
             xml.TxnData3 params[:txn_data_3]
-            xml.UrlSuccess payment_express_callback_url
-            xml.UrlFail payment_express_callback_url
+            xml.UrlSuccess callback_url
+            xml.UrlFail callback_url
           }
         end
         builder.doc.root.to_xml
@@ -104,6 +104,10 @@ module Shoppe
         else
           "https://uat.paymentexpress.com/pxaccess/pxpay.aspx"
         end        
+      end
+
+      def callback_url 
+        Rails.application.routes.url_helpers.send("payment_express_callback_url", host: request.host)
       end
 
       def return_after_payment_url(identifier)
