@@ -1,6 +1,6 @@
 $:.push File.expand_path("../lib", __FILE__)
 
-require "shoppe/paymentexpress/version"
+require "shoppe/payment_express/version"
 
 Gem::Specification.new do |s|
   s.name        = "shoppe-paymentexpress"
