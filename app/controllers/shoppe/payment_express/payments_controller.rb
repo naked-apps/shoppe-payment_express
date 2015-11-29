@@ -99,7 +99,6 @@ module Shoppe
       end
 
       def payment_url
-        return "https://sec.paymentexpress.com/pxaccess/pxpay.aspx"
         if Rails.env.production?
           "https://sec.paymentexpress.com/pxaccess/pxpay.aspx"
         else
