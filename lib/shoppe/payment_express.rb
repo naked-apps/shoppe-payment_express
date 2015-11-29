@@ -38,12 +38,11 @@ module Shoppe
     end
 
     class Configuration
-      attr_accessor :order_not_found_route, :return_after_payment_route, :return_after_payment_success_route, :return_after_payment_failure_route
+      attr_accessor :order_not_found_route, :return_after_payment_route
 
       def initialize
         @order_not_found_route = 'root'
-        @return_after_payment_success_route = 'root'
-        @return_after_payment_failure_route = 'root'
+        @return_after_payment_route = 'root'
       end
     end
 
