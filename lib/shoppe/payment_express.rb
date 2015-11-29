@@ -30,7 +30,7 @@ module Shoppe
         Shoppe.add_settings_group :payment_express, [:paymentexpress_pxpay_user_id, :paymentexpress_pxpay_key, :paymentexpress_currency_code]
       end
 
-      def configure
+      def configure(configuration)
         self.configuration ||= Shoppe::PaymentExpress::Configuration.new
         yield(configuration)
       end

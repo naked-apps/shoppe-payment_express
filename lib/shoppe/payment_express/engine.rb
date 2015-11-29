@@ -2,7 +2,7 @@ module Shoppe
   module PaymentExpress
     class Engine < Rails::Engine
 
-      initializer "shoppe.paymentexpress.initializer" do
+      initializer "shoppe.payment_express.initializer" do
         Shoppe::PaymentExpress.setup
       end
 

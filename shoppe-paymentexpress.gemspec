@@ -3,7 +3,7 @@ $:.push File.expand_path("../lib", __FILE__)
 require "shoppe/payment_express/version"
 
 Gem::Specification.new do |s|
-  s.name        = "shoppe-paymentexpress"
+  s.name        = "shoppe-payment_express"
   s.version     = Shoppe::PaymentExpress::VERSION
   s.authors     = ["Brendan Kilfoil"]
   s.email       = ["brendan@nakedapps.co.nz"]
