@@ -1,4 +1,5 @@
 require 'HTTParty'
+require 'Nori'
 
 module Shoppe
   module PaymentExpress
@@ -63,7 +64,6 @@ module Shoppe
         key = Shoppe.settings.paymentexpress_pxpay_key
         raise Shoppe::PaymentExpress::Errors::ConfigurationMissing unless user_id.present? && key.present?
         # Get the transaction details from Payment Express
-        payment_params = order.paymentexpress_payment_parameters
         xml = build_process_response_xml(user_id, key, result_token)
         response = HTTParty.post(payment_url, { body: xml })
         Nori.new.parse(response.to_s)
