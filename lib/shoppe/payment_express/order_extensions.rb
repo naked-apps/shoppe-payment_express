@@ -18,7 +18,7 @@ module Shoppe
 
       def paymentexpress_payment_parameters
         params = {
-          amount_input: self.total.round(2).to_s,
+          amount_input: ('%.2f' % self.total).to_s,
           merchant_reference: self.token,
           email_address: self.email_address.to_s.downcase,
           txn_id: self.id,

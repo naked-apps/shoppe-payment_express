@@ -47,12 +47,12 @@ module Shoppe
         xml = build_generate_request_xml(user_id, key, currency_code, payment_params)
         response = HTTParty.post(payment_url, { body: xml })
         # Extract the payment URL from the response
-        payment_url = URI(Nokogiri.XML(response.to_s).xpath("//Request//URI").text)
+        redirect_url = URI(Nokogiri.XML(response.to_s).xpath("//Request//URI").text)
         raise response.to_s
-        raise Shoppe::PaymentExpress::Errors::InvalidPaymentURL unless payment_url.kind_of?(URI::HTTPS)
+        raise Shoppe::PaymentExpress::Errors::InvalidPaymentURL unless redirect_url.kind_of?(URI::HTTPS)
 
         # Redirect the user to the payment page
-        redirect_to payment_url
+        redirect_to redirect_url
       end
 
 
@@ -102,6 +102,7 @@ module Shoppe
       end
 
       def payment_url
+        return "https://sec.paymentexpress.com/pxaccess/pxpay.aspx"
         if Rails.env.production?
           "https://sec.paymentexpress.com/pxaccess/pxpay.aspx"
         else
