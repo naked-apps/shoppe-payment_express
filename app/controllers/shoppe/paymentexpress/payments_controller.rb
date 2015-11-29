@@ -84,7 +84,7 @@ module Shoppe
             xml.PxPayUserId user_id
             xml.PxPayKey key
             xml.TxnType 'Purchase'
-            xml.CurrencyInput currency_code,
+            xml.CurrencyInput currency_code
             xml.AmountInput params[:amount_input]
             xml.MerchantReference params[:merchant_reference]
             xml.TxnId params[:txn_id]
