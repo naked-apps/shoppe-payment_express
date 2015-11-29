@@ -48,7 +48,6 @@ module Shoppe
         response = HTTParty.post(payment_url, { body: xml })
         # Extract the payment URL from the response
         redirect_url = URI(Nokogiri.XML(response.to_s).xpath("//Request//URI").text)
-        raise response.to_s
         raise Shoppe::PaymentExpress::Errors::InvalidPaymentURL unless redirect_url.kind_of?(URI::HTTPS)
 
         # Redirect the user to the payment page
@@ -90,7 +89,6 @@ module Shoppe
             xml.CurrencyInput currency_code
             xml.AmountInput params[:amount_input]
             xml.MerchantReference params[:merchant_reference]
-            xml.TxnId params[:txn_id]
             xml.TxnData1 params[:txn_data_1]
             xml.TxnData2 params[:txn_data_2]
             xml.TxnData3 params[:txn_data_3]
