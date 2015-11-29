@@ -15,4 +15,6 @@ Gem::Specification.new do |s|
 
   s.add_dependency "shoppe", "~> 1.0.3"
   s.add_dependency "nokogiri", "~> 1.6.6"
+  s.add_dependency "httparty", "~> 0.13.7"
+  s.add_dependency "nori", "~> 2.6.0"
 end

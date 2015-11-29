@@ -6,7 +6,7 @@ module Shoppe
         desc "Creates PaymentExpress initializer for your application"
 
         def copy_initializer
-          template "paymentexpress_initializer.rb", "config/initializers/paymentexpress.rb"
+          template "payment_express_initializer.rb", "config/initializers/payment_express.rb"
 
           puts "Install complete!"
         end

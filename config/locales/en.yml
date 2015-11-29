@@ -2,6 +2,10 @@ en:
   shoppe:
     settings:
       labels:
-        paymentexpress_account_name: Account Name
+        paymentexpress_pxpay_user_id: PxPay User ID
+        paymentexpress_pxpay_key: PxPay Key
+        paymentexpress_currency_code: Currency Code
       help:
-        paymentexpress_account_name: This is the last path component in your PaymentExpress payment URL.  E.g. mybusiness for http://www.paymentexpress.co.nz/pay/mybusiness
+        paymentexpress_pxpay_user_id: This is the PxPay User ID provided to you by Payment Express.  E.g. MyBusiness
+        paymentexpress_pxpay_key: This is the PxPay Key provided to you by Payment Express.  E.g. a111e223a88ba584b00fd7b5e750ce2724d721de4a099f4bc1f201ceb00f7c8b
+        paymentexpress_currency_code: This is currency code.  E.g. NZD. For a full list see http://www.paymentexpress.com/Technical_Resources/Ecommerce_Hosted/PxPay_2_0#currencyinput

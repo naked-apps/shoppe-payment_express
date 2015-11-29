@@ -3,7 +3,7 @@ require 'shoppe/paymentexpress/engine'
 
 require 'shoppe/paymentexpress/order_extensions'
 
-require 'shoppe/paymentexpress/errors/account_name_undefined'
+require 'shoppe/paymentexpress/errors/configuration_missing'
 
 module Shoppe
   module PaymentExpress
@@ -20,9 +20,13 @@ module Shoppe
         Shoppe.settings.paymentexpress_pxpay_key
       end
 
+      def currency_code
+        Shoppe.settings.paymentexpress_currency_code
+      end
+
       def setup
         # Set the configuration which we would like
-        Shoppe.add_settings_group :paymentexpress, [:paymentexpress_user_id, :paymentexpress_pxpay_key]
+        Shoppe.add_settings_group :payment_express, [:paymentexpress_pxpay_user_id, :paymentexpress_pxpay_key, :paymentexpress_currency_code]
       end
 
       def configure
@@ -33,12 +37,12 @@ module Shoppe
     end
 
     class Configuration
-      attr_accessor :callback_path, :order_not_found_route, :return_after_payment_route
+      attr_accessor :order_not_found_route, :return_after_payment_route, :return_after_payment_success_route, :return_after_payment_failure_route
 
       def initialize
-        @callback_path = 'payment'
         @order_not_found_route = 'root'
-        @return_after_payment_route = 'root'
+        @return_after_payment_success_route = 'root'
+        @return_after_payment_failure_route = 'root'
       end
     end
 

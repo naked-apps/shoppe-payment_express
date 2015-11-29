@@ -6,21 +6,25 @@ module Shoppe
       skip_filter :login_required
 
       def process_callback
-        ensure_callback_params!
-        permitted = params.permit(:id, :custom, :reference, :amount, :status, :name, :email, address: [:street, :region, :city, :zip, :country])
-        order = Shoppe::Order.find_by_token!(permitted[:custom])
-        # Only received orders can have payments against them
-        # as they're changed from received to accepted after payment
-        if order.status == 'received'
-          if order.create_paymentexpress_payment(permitted)
-            order.accept!
-            head :ok, content_type: "text/html"
-          else
-            head :not_acceptable, content_type: "text/html"
+        details = transaction_details(params.permit(:result)[:result])
+
+        # Have we been successful?
+        if details[:success].to_s == '1'
+          # Firstly, the order must exist
+          unless order = Shoppe::Order.find_by_token(params[:order_token])
+            order_not_found_path = Rails.application.routes.url_helpers.send("#{Shoppe::PaymentExpress.configuration.order_not_found_route}_url")
+            redirect_to order_not_found_path, alert: "Sorry, we couldn't actually find your order.  Please try again."
+            return
           end
-        else
-          head :not_acceptable, content_type: "text/html"
+          # If not yet accepted, accept it!
+          if order.status == 'received' && order.create_paymentexpress_payment(details)
+            order.accept!
+          end
         end
+
+        # Redirect to the status - we do this even if the payment failed
+        # Maybe we should allow them to retry payment from the order status page?
+        redirect_to return_after_payment_url(details[:txn_id])
       end
 
       def pay
@@ -30,39 +34,79 @@ module Shoppe
           return
         end
 
+        # Ensure we have the correct settings
+        user_id = Shoppe.settings.paymentexpress_pxpay_user_id
+        key = Shoppe.settings.paymentexpress_pxpay_key
+        currency_code = Shoppe.settings.paymentexpress_currency_code
+        raise Shoppe::PaymentExpress::Errors::ConfigurationMissing unless user_id.present? && key.present? && currency_code.present?
+
+        # Get the URI from Payment Express
         payment_params = order.paymentexpress_payment_parameters
-        payment_params[:return_url] = return_url(order.token)
-        redirect_to "#{payment_url}?#{payment_params.to_query}"
+        xml = build_generate_request_xml(user_id, key, currency_code, payment_params)
+        response = HTTParty.post(payment_url, { body: xml })
+        # Extract the payment URL from the response
+        payment_url = URI(Nokogiri.XML(response).xpath("//Request//URI").text)
+        raise Shoppe::PaymentExpress::Errors::InvalidPaymentURL unless uri.kind_of?(URI::HTTPS)
+
+        # Redirect the user to the payment page
+        redirect_to payment_url
       end
+
 
       private
 
-      def build_generate_request
-        
+      def transaction_details(result_token)
+        # Ensure we have the correct settings
+        user_id = Shoppe.settings.paymentexpress_pxpay_user_id
+        key = Shoppe.settings.paymentexpress_pxpay_key
+        raise Shoppe::PaymentExpress::Errors::ConfigurationMissing unless user_id.present? && key.present?
+        # Get the transaction details from Payment Express
+        payment_params = order.paymentexpress_payment_parameters
+        xml = build_process_response_xml(user_id, key, result_token)
+        response = HTTParty.post(payment_url, { body: xml })
+        Nori.new.parse(response)
       end
 
-      def ensure_callback_params!
-        params.require(:custom)
-        params.require(:id)
-        params.require(:reference)
-        params.require(:amount)
-        params.require(:status)
-        params.require(:name)
-        params.require(:email)
-        params.require(:address)
+      def build_process_response_xml(user_id, key, result_token)
+        builder = Nokogiri::XML::Builder.new do |xml|
+          xml.ProcessResponse {
+            xml.PxPayUserId user_id
+            xml.PxPayKey key
+            xml.Response result_token
+          }
+        end
+        builder.doc.root.to_xml
+      end
+
+      def build_generate_request_xml(user_id, key, currency_code, params)
+        builder = Nokogiri::XML::Builder.new do |xml|
+          xml.GenerateRequest {
+            xml.PxPayUserId user_id
+            xml.PxPayKey key
+            xml.TxnType 'Purchase'
+            xml.CurrencyInput currency_code,
+            xml.AmountInput params[:amount_input]
+            xml.MerchantReference params[:merchant_reference]
+            xml.TxnId params[:txn_id]
+            xml.TxnData1 params[:txn_data_1]
+            xml.TxnData2 params[:txn_data_2]
+            xml.TxnData3 params[:txn_data_3]
+            xml.UrlSuccess payment_callback_url
+            xml.UrlFail payment_callback_url
+          }
+        end
+        builder.doc.root.to_xml
       end
 
       def payment_url
-        account_name = Shoppe.settings.paymentexpress_account_name
-        raise Shoppe::PaymentExpress::Errors::AccoutNameUndefined unless account_name.present?
         if Rails.env.production?
-          "https://paymentexpress.com/pay/#{account_name}"
+          "https://sec.paymentexpress.com/pxaccess/pxpay.aspx"
         else
-          "http://sandbox.paymentexpress.com/pay/#{account_name}"
+          "https://uat.paymentexpress.com/pxaccess/pxpay.aspx"
         end        
       end
 
-      def return_url(identifier)
+      def return_after_payment_url(identifier)
         route = Shoppe::PaymentExpress.configuration.return_after_payment_route
         identifier_key = Rails.application.routes.named_routes[route].required_parts.first
         Rails.application.routes.url_helpers.send("#{route}_url", host: request.host, identifier_key => identifier)

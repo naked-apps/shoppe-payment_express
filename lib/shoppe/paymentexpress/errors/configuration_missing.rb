@@ -1,7 +1,7 @@
 module Shoppe
   module PaymentExpress
     module Errors
-      class AccoutNameUndefined < StandardError
+      class ConfigurationMissing < StandardError
         
       end
     end

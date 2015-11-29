@@ -6,8 +6,8 @@ module Shoppe
         if paymentexpress_payment_approved?(params) && paymentexpress_payment_valid?(params)
           payment = Shoppe::Payment.new
           payment.method = "PaymentExpress"
-          payment.reference = params[:id]
-          payment.amount = BigDecimal(params[:amount]) / BigDecimal(100)
+          payment.reference = params[:dps_txn_ref]
+          payment.amount = BigDecimal(params[:amount_settlement])
           payment.order = self
           payment.save!
           true
@@ -18,29 +18,26 @@ module Shoppe
 
       def paymentexpress_payment_parameters
         params = {
-          price: self.total.round(2).to_s,
-          description: self.id,
-          email: self.email_address,
-          address1: self.billing_address1,
-          city: self.billing_address3,
-          state: self.billing_address4,
-          zip: self.billing_postcode,
-          country: self.billing_country.name,
-          name: self.full_name,
-          custom: self.token
+          amount_input: self.total.round(2).to_s,
+          merchant_reference: self.id,
+          email_address: self.email_address.to_s.downcase,
+          txn_id: self.token,
+          txn_data_1: self.full_name[0..254],
+          txn_data_2: self.billing_address1[0..254],
+          txn_data_3: self.billing_address2[0..254]
         }
         params
       end
 
       def paymentexpress_payment_approved?(params)
-        return false if params[:status] != "Transaction approved"
+        return false if params[:success].to_s != '1'
         true
       end
 
       def paymentexpress_payment_valid?(params)
-        return false if self.token.to_s != params[:custom].to_s
-        return false if self.id.to_s != params[:reference].to_s
-        return false if self.email_address.to_s.downcase != params[:email].to_s.downcase
+        return false if self.token.to_s != params[:txn_id].to_s
+        return false if self.id.to_s != params[:merchant_reference].to_s
+        return false if self.email_address.to_s.downcase != params[:email_address].to_s.downcase
         true
       end
 
