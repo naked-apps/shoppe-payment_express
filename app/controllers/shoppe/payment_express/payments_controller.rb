@@ -13,7 +13,7 @@ module Shoppe
         # Have we been successful?
         if details[:success].to_s == '1'
           # Firstly, the order must exist
-          unless order = Shoppe::Order.find_by_token(params[:order_token])
+          unless order = Shoppe::Order.find_by_token(details[:merchant_reference])
             order_not_found_path = Rails.application.routes.url_helpers.send("#{Shoppe::PaymentExpress.configuration.order_not_found_route}_url")
             redirect_to order_not_found_path, alert: "Sorry, we couldn't actually find your order.  Please try again."
             return
@@ -26,7 +26,7 @@ module Shoppe
 
         # Redirect to the status - we do this even if the payment failed
         # Maybe we should allow them to retry payment from the order status page?
-        redirect_to return_after_payment_url(details[:txn_id])
+        redirect_to return_after_payment_url(details[:merchant_reference])
       end
 
       def pay
@@ -47,8 +47,9 @@ module Shoppe
         xml = build_generate_request_xml(user_id, key, currency_code, payment_params)
         response = HTTParty.post(payment_url, { body: xml })
         # Extract the payment URL from the response
-        payment_url = URI(Nokogiri.XML(response).xpath("//Request//URI").text)
-        raise Shoppe::PaymentExpress::Errors::InvalidPaymentURL unless uri.kind_of?(URI::HTTPS)
+        payment_url = URI(Nokogiri.XML(response.to_s).xpath("//Request//URI").text)
+        raise response.to_s
+        raise Shoppe::PaymentExpress::Errors::InvalidPaymentURL unless payment_url.kind_of?(URI::HTTPS)
 
         # Redirect the user to the payment page
         redirect_to payment_url
@@ -66,7 +67,7 @@ module Shoppe
         payment_params = order.paymentexpress_payment_parameters
         xml = build_process_response_xml(user_id, key, result_token)
         response = HTTParty.post(payment_url, { body: xml })
-        Nori.new.parse(response)
+        Nori.new.parse(response.to_s)
       end
 
       def build_process_response_xml(user_id, key, result_token)

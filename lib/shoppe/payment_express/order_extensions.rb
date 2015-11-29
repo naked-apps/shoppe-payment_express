@@ -19,9 +19,9 @@ module Shoppe
       def paymentexpress_payment_parameters
         params = {
           amount_input: self.total.round(2).to_s,
-          merchant_reference: self.id,
+          merchant_reference: self.token,
           email_address: self.email_address.to_s.downcase,
-          txn_id: self.token,
+          txn_id: self.id,
           txn_data_1: self.full_name.to_s[0..254],
           txn_data_2: self.billing_address1.to_s[0..254],
           txn_data_3: self.billing_address2.to_s[0..254]
@@ -35,8 +35,8 @@ module Shoppe
       end
 
       def paymentexpress_payment_valid?(params)
-        return false if self.token.to_s != params[:txn_id].to_s
-        return false if self.id.to_s != params[:merchant_reference].to_s
+        return false if self.token.to_s != params[:merchant_reference].to_s
+        return false if self.id.to_s != params[:txn_id].to_s
         return false if self.email_address.to_s.downcase != params[:email_address].to_s.downcase
         true
       end
