@@ -1,3 +1,5 @@
+require 'HTTParty'
+
 module Shoppe
   module PaymentExpress
     class PaymentsController < ApplicationController
