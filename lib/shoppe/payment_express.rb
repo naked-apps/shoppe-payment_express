@@ -1,9 +1,10 @@
-require 'shoppe/paymentexpress/version'
-require 'shoppe/paymentexpress/engine'
+require 'shoppe/payment_express/version'
+require 'shoppe/payment_express/engine'
 
-require 'shoppe/paymentexpress/order_extensions'
+require 'shoppe/payment_express/order_extensions'
 
-require 'shoppe/paymentexpress/errors/configuration_missing'
+require 'shoppe/payment_express/errors/configuration_missing'
+require 'shoppe/payment_express/errors/invalid_payment_url'
 
 module Shoppe
   module PaymentExpress
