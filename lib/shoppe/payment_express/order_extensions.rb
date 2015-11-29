@@ -22,9 +22,9 @@ module Shoppe
           merchant_reference: self.id,
           email_address: self.email_address.to_s.downcase,
           txn_id: self.token,
-          txn_data_1: self.full_name[0..254],
-          txn_data_2: self.billing_address1[0..254],
-          txn_data_3: self.billing_address2[0..254]
+          txn_data_1: self.full_name.to_s[0..254],
+          txn_data_2: self.billing_address1.to_s[0..254],
+          txn_data_3: self.billing_address2.to_s[0..254]
         }
         params
       end

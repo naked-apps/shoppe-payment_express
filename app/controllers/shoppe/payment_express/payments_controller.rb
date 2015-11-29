@@ -91,8 +91,8 @@ module Shoppe
             xml.TxnData1 params[:txn_data_1]
             xml.TxnData2 params[:txn_data_2]
             xml.TxnData3 params[:txn_data_3]
-            xml.UrlSuccess callback_url
-            xml.UrlFail callback_url
+            xml.UrlSuccess payment_express_callback_url
+            xml.UrlFail payment_express_callback_url
           }
         end
         builder.doc.root.to_xml
