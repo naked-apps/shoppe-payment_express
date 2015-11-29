@@ -1,5 +1,4 @@
 require 'HTTParty'
-require 'Nori'
 
 module Shoppe
   module PaymentExpress
@@ -12,9 +11,9 @@ module Shoppe
         details = transaction_details(params.permit(:result)[:result])
 
         # Have we been successful?
-        if details[:success].to_s == '1'
+        if details['Success'].to_s == '1'
           # Firstly, the order must exist
-          unless order = Shoppe::Order.find_by_token(details[:merchant_reference])
+          unless order = Shoppe::Order.find_by_token(details['MerchantReference'])
             order_not_found_path = Rails.application.routes.url_helpers.send("#{Shoppe::PaymentExpress.configuration.order_not_found_route}_url")
             redirect_to order_not_found_path, alert: "Sorry, we couldn't actually find your order.  Please try again."
             return
@@ -27,7 +26,7 @@ module Shoppe
 
         # Redirect to the status - we do this even if the payment failed
         # Maybe we should allow them to retry payment from the order status page?
-        redirect_to return_after_payment_url(details[:merchant_reference])
+        redirect_to return_after_payment_url(details['MerchantReference'])
       end
 
       def pay
@@ -66,7 +65,7 @@ module Shoppe
         # Get the transaction details from Payment Express
         xml = build_process_response_xml(user_id, key, result_token)
         response = HTTParty.post(payment_url, { body: xml })
-        Nori.new.parse(response.to_s)
+        response['Response']
       end
 
       def build_process_response_xml(user_id, key, result_token)
