@@ -9,7 +9,6 @@ module Shoppe
 
       def process_callback
         details = transaction_details(params.permit(:result)[:result])
-
         # Have we been successful?
         if details['Success'].to_s == '1'
           # Firstly, the order must exist
@@ -87,6 +86,7 @@ module Shoppe
             xml.TxnType 'Purchase'
             xml.CurrencyInput currency_code
             xml.AmountInput params[:amount_input]
+            xml.EmailAddress params[:email_address]
             xml.MerchantReference params[:merchant_reference]
             xml.TxnData1 params[:txn_data_1]
             xml.TxnData2 params[:txn_data_2]
